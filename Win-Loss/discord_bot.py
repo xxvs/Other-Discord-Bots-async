@@ -31,7 +31,7 @@ async def on_message(message):
 		try:
 			stats['wins']=int(msg)
 			save_stats()
-			await client.send_message(message.channel, 'Wins has been set to {}'.format(msg))
+			await client.send_message(message.channel, '**Wins** has been set to {}'.format(msg))
 		except ValueError:
 			await client.send_message(message.channel, '{} is not a valid input'.format(msg))
 
@@ -40,7 +40,7 @@ async def on_message(message):
 		try:
 			stats['losses']=int(msg)
 			save_stats()
-			await client.send_message(message.channel, 'Losses has been set to {}'.format(msg))
+			await client.send_message(message.channel, '**Losses** has been set to {}'.format(msg))
 		except ValueError:
 			await client.send_message(message.channel, '{} is not a valid input'.format(msg))
 
