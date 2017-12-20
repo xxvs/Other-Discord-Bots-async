@@ -1,11 +1,25 @@
 import discord
 client=discord.Client()
 
+
+role_ranks={
+	'amber':range(5,9),
+	'sapphire':range(10,14),
+	'emerald':range(15,24),
+	'Gold':range(25,49),
+	'Crystal':range(50,99),
+	'Diamond':range(100,100000)
+}
+
+
 @client.event
 async def on_ready():
+	global role_list
 	print('Logged in as: '+client.user.name)
 	print('Bot ID: '+client.user.id)
-	print('------')
+	print('------\n')
+	for server in client.servers:
+		role_list=dict((role.name,role) for role in server.roles)
 
 @client.event
 async def on_message(message):
@@ -21,5 +35,22 @@ async def on_message(message):
 				embed.add_field(name='Expires',value='Never')
 		embed.add_field(name='__Total Uses__',value=total_uses)
 		await client.send_message(message.channel,embed=embed)
-		
+
+	if message.content=='!rank':
+		invites=await client.invites_from(message.server)
+		for member in message.server.members:
+			if member.bot==False:
+				uses=0
+				prole=None
+				for invite in invites:
+					if invite.max_age==0:
+						uses += invite.uses
+				for role,used in role_ranks.items():
+					if uses in used and role_list[role] not in member.roles:
+						for mrole in member.roles:
+							if mrole.name in role_ranks.keys():
+								await client.remove_roles(member,mrole)
+						await client.send_message(message.channel,"Congratulations  {}, you have been promoted to **{}**!".format(member.mention,role))
+						await client.add_roles(member,role_list[role])
+
 client.run('TOKEN')
