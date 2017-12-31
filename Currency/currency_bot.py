@@ -1,6 +1,7 @@
 '''
 A simple currency bot.
-Add roles that are allowed to give currency to others in the server. Use !give @member {number} 
+Add roles that are allowed to give currency to others in the server to 'approved_roles'
+Use !give @member {number}
 Members can check their balance with !bank
 '''
 
