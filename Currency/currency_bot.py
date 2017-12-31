@@ -64,6 +64,7 @@ async def give(ctx,member: discord.Member=None, amount: int=None):
 
 @bot.command(pass_context=True)
 async def bank(ctx):
+	'''View your bank account balance'''
 	account=ctx.message.author
 	await bot.say('{} : **{}**'.format(account.mention,currency[account.id]))
 
