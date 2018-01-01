@@ -64,6 +64,28 @@ async def give(ctx,member: discord.Member=None, amount: int=None):
 		await bot.say('You do not have permissios to add funds.')
 
 @bot.command(pass_context=True)
+async def take(ctx,member: discord.Member=None, amount: int=None):
+	'''Example: !take @member 100'''
+	if amount==None or int(amount)==False:
+		await bot.say('Incorrect format.')
+		return
+
+	take=False
+	author=ctx.message.author
+	for role in author.roles:
+		if role.name in approved_roles:
+			take=True
+			break
+	if take==True:
+		if member.id not in currency:
+			currency[member.id]=0
+		currency[member.id]-=amount
+		edit_json('currency',currency)
+		await bot.say("{} has been removed from {}'s account".format(amount,member.mention))
+	else:
+		await bot.say('You do not have permissios to remove funds.')
+
+@bot.command(pass_context=True)
 async def bank(ctx):
 	'''View your bank account balance'''
 	account=ctx.message.author
