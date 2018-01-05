@@ -1,11 +1,17 @@
+'''
+Automatically checks and roles members if they meet the criteria in `role_ranks`
+Roles must be in the server and are case sensitive.
+Adjust Role names and rank criteria as needed.
+'''
+
 import discord
 client=discord.Client()
 
 
 role_ranks={
-	'amber':range(5,9),
-	'sapphire':range(10,14),
-	'emerald':range(15,24),
+	'Amber':range(5,9),
+	'Sapphire':range(10,14),
+	'Emerald':range(15,24),
 	'Gold':range(25,49),
 	'Crystal':range(50,99),
 	'Diamond':range(100,100000)
