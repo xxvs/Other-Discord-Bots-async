@@ -1,0 +1,26 @@
+{"games":
+  {
+    "ARK":
+    {
+      "maps": ["TheIsland", "TheCenter", "Ragnarok", "ScorchedEarth_P"],
+      "script": "'start ShooterGameServer.exe {}?SessionName=potato?ServerPassword=potato?ServerAdminPassword=****?Port=?QueryPort=?listen?MaxPlayers=1 exit'.format(map)"
+    },
+    "7D2D":
+    {
+      "maps": ["map1", "map2"],
+      "script":"'ls -l'"
+    },
+  "FOREST":
+    {
+      "script":"'ls -l'"
+    },
+  "RUST":
+    {
+      "script":"'ls -l'"
+    },
+  "L4D2":
+    {
+      "script":"'ls -l'"
+    }
+  }
+}
