@@ -10,7 +10,6 @@ responses=['Yum!','LIES!','more things!'] #add more responses for the bot
 
 @bot.event
 async def on_ready():
-	global timeout_role,timeout_channel
 	print(bot.user.name)
 	print(bot.user.id)
 
