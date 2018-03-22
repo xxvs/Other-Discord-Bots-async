@@ -6,7 +6,7 @@ from discord.ext import commands
 bot=commands.Bot(command_prefix='!')
 
 trigger_words=['edit','this','list'] #add the misspelled words to the list
-responses=['Yum!','LIES!','more things!','edit'] #add more responses for the bot
+responses=['Yum!','LIES!','more things!'] #add more responses for the bot
 
 @bot.event
 async def on_ready():
