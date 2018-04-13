@@ -1,3 +1,7 @@
+#the bot will make two folders: images and sent_images
+#put your images into the image folder
+#images that are uploaded will be moved to the sent_images folder so they won't be reposted
+
 import discord,os,random,asyncio
 from datetime import datetime
 from discord.ext import commands
@@ -5,7 +9,7 @@ from discord.ext import commands
 bot=commands.Bot(command_prefix='!')
 
 send_time='12:00' #time is in 24hr format
-image_channel_id='429429283115630592' #channel ID to send images to
+image_channel_id='ChannelID' #channel ID to send images to, replace with your channel ID
 image_types=('.jpg','.png','.gif','.jpeg') #add image types if needed
 
 
