@@ -32,7 +32,6 @@ async def on_ready():
 	global clip_channel
 	print(bot.user.name)
 	print(bot.user.id)
-	await bot.edit_profile(username='TestBot')
 	await bot.wait_until_ready()
 	clip_channel=bot.get_channel(clip_channel_id)
 
