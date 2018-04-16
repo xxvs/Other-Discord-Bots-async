@@ -46,6 +46,5 @@ async def on_message(message):
 			if item.startswith(key) and item not in twitch_clips:
 				twitch_clips.append(item)
 				edit_file('twitch_clips',twitch_clips)
-				print(twitch_clips)
 
 bot.run('TOKEN')
