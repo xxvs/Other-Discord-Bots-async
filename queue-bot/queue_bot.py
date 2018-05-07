@@ -25,7 +25,7 @@ async def on_ready():
 async def add(ctx):
 	''': Add yourself to the queue'''
 	author=ctx.message.author
-	if author.id not in _queue:
+	if author not in _queue:
 		_queue.append(author)
 		await bot.send_message(author,'You have been added to the queue')
 
