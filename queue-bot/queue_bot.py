@@ -41,7 +41,7 @@ async def queue():
 	place=1
 	message=''
 	for member in _queue:
-		message+='**#{}** : <@{}>'.format(place,member)
+		message+='**#{}** : <@{}>\n'.format(place,member)
 		place+=1
 	if message != '':
 		await bot.say(message)
