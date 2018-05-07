@@ -3,7 +3,8 @@ from discord.ext import commands
 
 bot=commands.Bot(command_prefix='!')
 
-approved_roles=['Admin','Bot'] #add roles that can clear and call members from the queue
+approved_roles=['Admin','Bot'] #replace with the name of the roles that can use call and clear commands
+
 _queue=[]
 
 def is_approved():
@@ -25,15 +26,15 @@ async def add(ctx):
 	''': Add yourself to the queue'''
 	author=ctx.message.author
 	if author.id not in _queue:
-		_queue.append(author.id)
+		_queue.append(author)
 		await bot.send_message(author,'You have been added to the queue')
 
 @bot.command(pass_context=True)
 async def remove(ctx):
 	''': Remove yourself from the queue'''
 	author=ctx.message.author
-	if author.id in _queue:
-		_queue.remove(author.id)
+	if author in _queue:
+		_queue.remove(author)
 		await bot.send_message(author,'You have been removed from the queue')
 @bot.command()
 async def queue():
@@ -41,7 +42,7 @@ async def queue():
 	place=1
 	message=''
 	for member in _queue:
-		message+='**#{}** : <@{}>\n'.format(place,member)
+		message+='**#{}** : {}\n'.format(place,member.mention)
 		place+=1
 	if message != '':
 		await bot.say(message)
@@ -52,8 +53,8 @@ async def queue():
 async def position(ctx):
 	''': Check your postion in the queue'''
 	author=ctx.message.author
-	if author.id in _queue:
-		await bot.send_message(author,'You are **#{}** in the queue.'.format(_queue.index(author.id)+1))
+	if author in _queue:
+		await bot.send_message(author,'You are **#{}** in the queue.'.format(_queue.index(author)+1))
 
 @is_approved()
 @bot.command(pass_context=True)
