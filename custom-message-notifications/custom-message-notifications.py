@@ -131,7 +131,7 @@ async def notif(ctx, watch: str, watch_channel: discord.Channel, not_channel: di
     if new_notification not in not_settings:
         not_settings.append(new_notification)
         edit_json('not_settings', not_settings)
-        Notifications(server.id, watch.id, watch_channel.id,
+        Notifications(server.id, watch, watch_channel.id,
                       message, not_channel.id)
         msg = list_settings()
         await bot.whisper(f'Notification settings have been updated:```{msg}```')
