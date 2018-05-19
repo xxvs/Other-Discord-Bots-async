@@ -131,7 +131,7 @@ async def notif(ctx, watch: str, watch_channel: discord.Channel, not_channel: di
     if new_notification not in not_settings:
         not_settings.append(new_notification)
         edit_json('not_settings', not_settings)
-        Notifications(server.id, watch.id, watch_channel.id,
+        Notifications(server.id, watch, watch_channel.id,
                       message, not_channel.id)
         msg = list_settings()
         await bot.whisper(f'Notification settings have been updated:```{msg}```')
@@ -153,21 +153,25 @@ async def notremove(ctx):
     ''': Remove notifications'''
     author = ctx.message.author
     msg = list_settings()
-    await bot.whisper(f'```Please select a position to be removed:\n\n{msg}```')
+    await bot.whisper(f'```Please select a position to be removed or "{prefix}cancel" to stop the process:\n\n{msg}```')
     info = None
     while info is None:
         try:
-            info = await bot.wait_for_message(timeout=30, author=author)
+            info = await bot.wait_for_message(author=author)
             info = info.content
-            if not int(info):
+            if info.lower() == prefix+'cancel':
+                info = False
+                await bot.whisper('No notifications have been changed')
+            elif not int(info):
                 await bot.whisper('You need to enter a valid option')
                 info = None
-            position = int(info)-1
-            del Notifications.not_list[position]
-            del not_settings[position]
-            edit_json('not_settings', not_settings)
-            msg = list_settings()
-            await bot.whisper(f'Notification settings have been updated:```{msg}```')
+            elif int(info):
+                position = int(info)-1
+                del Notifications.not_list[position]
+                del not_settings[position]
+                edit_json('not_settings', not_settings)
+                msg = list_settings()
+                await bot.whisper(f'Notification settings have been updated:```{msg}```')
         except:
             await bot.whisper('You need to enter a valid option')
             info = None
