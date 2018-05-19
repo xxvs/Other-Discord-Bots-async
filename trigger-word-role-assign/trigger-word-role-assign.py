@@ -9,7 +9,7 @@ trigger_words = ['list', 'of', 'Words']
 # The ID# of the role to assign
 assigned_role_id = 'YOUR ROLE ID#'
 
-# bool, change to true if you want the filter to work for case sensitive
+# bool, change if you want the filter to be case sensitive
 case_sensitive = True
 
 bot = commands.Bot(command_prefix='!')
