@@ -1,95 +1,85 @@
-'''
-A simple currency bot.
-Add roles that are allowed to give currency to others in the server to 'approved_roles'
-Use !give @member {number}
-Members can check their balance with !bank
-'''
-
 import discord
 from discord.ext import commands
-import os,json
+from pyson import pyson
 
-#Add the roles that are able to give currency to people
-approved_roles=['Admin','Mod']
+currency=pyson('currency')
 
-def read_json(file_name):
-	if file_name.endswith('.json')==False:
-		file_name=file_name+'.json'
-	if not os.path.isfile(file_name):
-		list_name=open(file_name,"w+")
-		list_name={}
-	else:
-		try:
-			with open(file_name) as f:
-				list_name = json.load(f)
-		except ValueError:
-			list_name={}
-	return list_name
+if 'name' not in currency.data:
+    currency.data['name']='dollars'
 
-def edit_json(file_name,items):
-	if file_name.endswith('.json')==False:
-		file_name=file_name+'.json'
-	with open(file_name,"w") as f:
-		f.write(json.dumps(items))
-
-currency=read_json('currency')
-
-bot = commands.Bot(command_prefix='!')
+bot=commands.Bot(command_prefix="!")
 
 @bot.event
 async def on_ready():
-	print('Logged in as: {}'.format(bot.user))
-	print('User ID: {}'.format(bot.user.id))
+    print('Logged in as: '+bot.user.name)
+    print('With user ID: '+bot.user.id)
+
+def check_id(ID):
+    if ID not in currency.data:
+        currency.data[ID]=0
+        currency.save()
+
+def is_approved():
+    def predicate(ctx):
+        if ctx.message.author.id==ctx.message.server.owner.id:
+            return True
+        return False
+    return commands.check(predicate)   
+
+@is_approved()
+@bot.command()
+async def currency_type(ntype:str='dollars'):
+    ''': Change name of your currency'''
+    ptype=currency.data['name']
+    currency.data['name']=ntype
+    currency.save()
+    await bot.say(f'The economy type have been changed from **{ptype}** to **{ntype}**')
+
+@is_approved()
+@bot.command(pass_context=True)
+async def add(ctx,amount:int=0,member:discord.Member=None):
+    ''': Add points/currency to a member's stash'''
+    ID=member.id
+    check_id(ID)
+    currency.data[ID]+=amount
+    currency.save()
+    await bot.say(f'''{amount} {currency.data["name"]} have been added to {member.mention}'s stash''')
+
+@is_approved()
+@bot.command(pass_context=True)
+async def remove(ctx,amount:int=0,member:discord.Member=None):
+    ''': Remove points/currency from a member's stash'''
+    ID=member.id
+    check_id(ID)
+    currency.data[ID]-=amount
+    currency.save()
+    await bot.say(f'''{amount} {currency.data["name"]} has been removed from {member.mention}'s stash''')
 
 @bot.command(pass_context=True)
-async def give(ctx,member: discord.Member=None, amount: int=None):
-	'''Example: !give @member 100'''
-	if amount==None or int(amount)==False:
-		await bot.say('Incorrect format.')
-		return
+async def stash(ctx):
+    ''': Check your stash!'''
+    member=ctx.message.author
+    check_id(member.id)
+    await bot.reply(f'you have {currency.data[member.id]} {currency.data["name"]}')
 
-	give=False
-	author=ctx.message.author
-	for role in author.roles:
-		if role.name in approved_roles:
-			give=True
-			break
-	if give==True:
-		if member.id not in currency:
-			currency[member.id]=0
-		currency[member.id]+=amount
-		edit_json('currency',currency)
-		await bot.say("{} has been added to {}'s account".format(amount,member.mention))
-	else:
-		await bot.say('You do not have permissios to add funds.')
-
-@bot.command(pass_context=True)
-async def take(ctx,member: discord.Member=None, amount: int=None):
-	'''Example: !take @member 100'''
-	if amount==None or int(amount)==False:
-		await bot.say('Incorrect format.')
-		return
-
-	take=False
-	author=ctx.message.author
-	for role in author.roles:
-		if role.name in approved_roles:
-			take=True
-			break
-	if take==True:
-		if member.id not in currency:
-			currency[member.id]=0
-		currency[member.id]-=amount
-		edit_json('currency',currency)
-		await bot.say("{} has been removed from {}'s account".format(amount,member.mention))
-	else:
-		await bot.say('You do not have permissios to remove funds.')
-
-@bot.command(pass_context=True)
-async def bank(ctx):
-	'''View your bank account balance'''
-	account=ctx.message.author
-	await bot.say('{} : **{}**'.format(account.mention,currency[account.id]))
-
+@bot.command(aliases=['leaderboards'])
+async def leaderboard():
+    ''': View the server leaderboad'''
+    members=[(ID,score) for ID,score in currency.data.items() if ID !='name']
+    if len(members)==0:
+        await bot.say('I have nothing to show')
+        return
+    ordered=sorted(members,key=lambda x:x[1] ,reverse=True )
+    players=''
+    scores=''
+    for ID,score in ordered:
+        player=discord.utils.get(bot.get_all_members(),id=ID)
+        players+=player.mention+'\n'
+        scores+=str(score)+'\n'
+    embed=discord.Embed(title='Leaderboard')
+    embed.add_field(name='Player',value=players)
+    embed.add_field(name='Score',value=scores)
+    await bot.say(embed=embed)
+            
 
 bot.run('TOKEN')
