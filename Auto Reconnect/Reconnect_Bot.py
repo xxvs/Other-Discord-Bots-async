@@ -5,7 +5,6 @@ client = discord.Client()
 
 @client.event
 async def on_ready():
-	global connect
 	print('Logged in as: '+client.user.name)
 	print('Bot ID: '+client.user.id)
 	for server in client.servers:
