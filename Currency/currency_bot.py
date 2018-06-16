@@ -21,7 +21,8 @@ def check_id(ID):
 
 def is_approved():
     def predicate(ctx):
-        if ctx.message.author.id==ctx.message.server.owner.id:
+        author=ctx.message.author
+        if author==ctx.message.server.owner or ('administrator',True) in author.server_permissions:
             return True
         return False
     return commands.check(predicate)   
