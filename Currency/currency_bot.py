@@ -33,7 +33,7 @@ async def currency_type(ntype:str='dollars'):
     ptype=currency.data['name']
     currency.data['name']=ntype
     currency.save()
-    await bot.say(f'The economy type have been changed from **{ptype}** to **{ntype}**')
+    await bot.say(f'The economy type has been changed from **{ptype}** to **{ntype}**')
 
 @is_approved()
 @bot.command(pass_context=True)
