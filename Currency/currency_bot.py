@@ -21,7 +21,8 @@ def check_id(ID):
 
 def is_approved():
     def predicate(ctx):
-        if ctx.message.author.id==ctx.message.server.owner.id:
+        author=ctx.message.author
+        if author==ctx.message.server.owner or ('administrator',True) in author.server_permissions:
             return True
         return False
     return commands.check(predicate)   
@@ -33,7 +34,7 @@ async def currency_type(ntype:str='dollars'):
     ptype=currency.data['name']
     currency.data['name']=ntype
     currency.save()
-    await bot.say(f'The economy type have been changed from **{ptype}** to **{ntype}**')
+    await bot.say(f'The economy type has been changed from **{ptype}** to **{ntype}**')
 
 @is_approved()
 @bot.command(pass_context=True)
