@@ -1,7 +1,7 @@
 # Other-Discord-Bots
+**These are written in for the async version of discord.py!**
 
 A collection of Discord bots written in Python
-
 
 Here's a tutorial that goes over pretty much everything to get started https://www.youtube.com/watch?v=pEnRUKhAcOM
 
