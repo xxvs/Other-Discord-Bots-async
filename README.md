@@ -1,5 +1,5 @@
 # Other-Discord-Bots
-**These are written in for the async version of discord.py!**
+**These are written for the async version of discord.py!**
 
 A collection of Discord bots written in Python
 
