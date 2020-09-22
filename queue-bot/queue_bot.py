@@ -1,10 +1,9 @@
 # queue bot
-
 import discord
 from discord.ext import commands
+from discord.ext.commands import CommandNotFound
 
-prefix = '!'  # change this to whatever prefix you'd like
-
+prefix = '!'
 bot = commands.Bot(command_prefix=prefix)
 
 # add roles that can use some commands
@@ -14,7 +13,7 @@ approved_roles = ['Admin', 'Bot', 'Mod']
 def is_approved():
     def predicate(ctx):
         author = ctx.message.author
-        if author is ctx.message.server.owner:
+        if author is ctx.message.guild.owner:
             return True
         if any(role.name in approved_roles for role in author.roles):
             return True
@@ -27,88 +26,102 @@ async def on_ready():
     print(bot.user.id)
 
 
-class Queue:
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, CommandNotFound):
+        return
+    if isinstance(error, commands.NoPrivateMessage):
+        return
+    raise error
+
+
+class QueueBot(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
         self.queue = []
         self.qtoggle = False
+        self.code = ''
 
-    @commands.command(pass_context=True)
+    @commands.guild_only()
+    @commands.command()
+    async def room(self, ctx, arg):
+        '''Set room code'''
+        self.code = arg
+        await self._queue(ctx)
+
+    @commands.guild_only()
+    @commands.command()
     async def add(self, ctx):
         ''': Add yourself to the queue!'''
-        author = ctx.message.author
+        author = ctx.author
+        message = ''
         if self.qtoggle:
             if author.id not in self.queue:
                 self.queue.append(author.id)
-                await self.bot.reply('you have been added to the queue.')
-            else:
-                await self.bot.reply('you are already in the queue!')
-        else:
-            await self.bot.say('The queue is closed.')
+                if len(self.queue) > 4:
+                    message = await self.list_users(ctx, 'There are enough players for a game!\n', True)
 
-    @commands.command(pass_context=True)
+                await ctx.send('You have been added to the queue.\n' + message)
+            else:
+                await ctx.send('You are already in the queue!')
+        else:
+            await ctx.send('The queue is closed.')
+
+    @commands.guild_only()
+    @commands.command()
     async def remove(self, ctx):
         ''': Remove yourself from the queue'''
         author = ctx.message.author
         if author.id in self.queue:
             self.queue.remove(author.id)
-            await self.bot.reply('you have been removed from the queue.')
+            await ctx.send('You have been removed from the queue.')
         else:
-            await bot.reply('you were not in the queue.')
+            await ctx.send('You were not in the queue.')
 
-    @commands.command(name='queue', pass_context=True)
-    async def _queue(self, ctx):
-        ''': See who's up next!'''
-        server = ctx.message.server
+    async def list_users(self, ctx, text, mention=False):
+        guild = ctx.message.guild
         message = ''
         for place, member_id in enumerate(self.queue):
-            member = discord.utils.get(server.members, id=member_id)
-            message += f'**#{place+1}** : {member.mention}\n'
+            member = discord.utils.get(guild.members, id=member_id)
+            message += f'**#{place+1}** : {member.mention}\n' if mention else f'**#{place+1}** : {str(member)}\n'
         if message != '':
-            await self.bot.say(message)
-        else:
-            await self.bot.say('Queue is empty')
+            room_code = f'ROOM CODE: {self.code}\n' if self.code != '' else ''
+            message = text + room_code + message
+        return message
 
-    @commands.command(pass_context=True)
-    async def position(self, ctx):
-        ''': Check your position in the queue'''
-        author = ctx.message.author
-        if author.id in self.queue:
-            _position = self.queue.index(author.id)+1
-            await self.bot.reply(f'you are **#{_position}** in the queue.')
+    @commands.guild_only()
+    @commands.command(name='queue')
+    async def _queue(self, ctx):
+        ''': See users in queue'''
+        message = await self.list_users(ctx, '')
+        if message != '':
+            await ctx.send(message)
         else:
-            await self.bot.reply(f'you are not in the queue, please use {prefix}add to add yourself to the queue.')
+            await ctx.send('The queue is empty.')
 
     @is_approved()
-    @commands.command(pass_context=True, name='next')
-    async def _next(self, ctx):
-        ''': Call the next member in the queue'''
-        if len(self.queue) > 0:
-            member = discord.utils.get(
-                ctx.message.server.members, id=self.queue[0])
-            await bot.say(f'You are up **{member.mention}**! Have fun!')
-            self.queue.remove(self.queue[0])
-
-    @is_approved()
+    @commands.guild_only()
     @commands.command()
-    async def clear(self):
+    async def clear(self, ctx):
         ''': Clears the queue'''
         self.queue = []
-        await self.bot.say('Queue has been cleared')
+        await ctx.send('The queue has been cleared.')
 
     @is_approved()
+    @commands.guild_only()
     @commands.command()
-    async def toggle(self):
+    async def toggle(self, ctx):
         ''': Toggles the queue'''
         self.qtoggle = not self.qtoggle
         if self.qtoggle:
             state = 'OPEN'
         else:
             state = 'CLOSED'
-        await self.bot.say(f'Queue is now {state}')
+        await ctx.send(f'The queue is now {state}')
 
 
-bot.add_cog(Queue(bot))
+bot.add_cog(QueueBot(bot))
 
-bot.run('TOKEN')
+
+bot.run('token')
